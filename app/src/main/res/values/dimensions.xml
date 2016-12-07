@@ -1,0 +1,5 @@
+<resources>
+    <!-- The main Activity of the app -->
+    <dimen name="activity_main_padding">5dip</dimen>
+    <dimen name="activity_main_list_item_picture_size">50dip</dimen>
+</resources>

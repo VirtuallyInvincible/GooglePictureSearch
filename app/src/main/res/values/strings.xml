@@ -1,0 +1,11 @@
+<resources>
+    <!-- General -->
+    <string name="app_name">MyGooglePictureSearch</string>
+    <string name="error">Error!</string>
+    <string name="api_call_failure_message">There was a problem connecting to the server.</string>
+    <string name="loading_prompt">Loading...</string>
+
+    <!-- Main Activity of the app -->
+    <string name="activity_main_search_box_hint">Search subject...</string>
+    <string name="activity_main_fetch_more_button">More...</string>
+</resources>
