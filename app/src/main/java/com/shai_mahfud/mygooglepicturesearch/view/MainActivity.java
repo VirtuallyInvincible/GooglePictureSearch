@@ -10,12 +10,17 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Response;
@@ -34,7 +39,7 @@ import org.json.JSONObject;
  * @author Shai Mahfud
  */
 public class MainActivity extends Activity implements View.OnClickListener,
-        EditText.OnEditorActionListener {
+        EditText.OnEditorActionListener, TextWatcher {
     // Constants:
     /**
      * The desired size of each chunk retrieved from the server. Note that Google API doesn't allow
@@ -68,6 +73,8 @@ public class MainActivity extends Activity implements View.OnClickListener,
     // Fields:
     /* The field where the user types the expression to search */
     private EditText searchBox;
+    /* Enables to clear the text in the search box */
+    private ImageView searchBoxClearButton;
     /* The adapter for the pictures list */
     private PictureListAdapter pictureListAdapter;
     /*
@@ -100,7 +107,14 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
         // Capture Views:
         searchBox = (EditText) findViewById(R.id.activity_main_search_box);
+        searchBoxClearButton = (ImageView) findViewById(R.id.activity_main_clear_search_button);
         ListView contentList = (ListView) findViewById(R.id.activity_main_content_list);
+
+        // Once the user starts typing, render the clear button visible:
+        searchBox.addTextChangedListener(this);
+
+        // If the user taps the clear button, remove the search text:
+        searchBoxClearButton.setOnClickListener(this);
 
         // Listen for attempts to start new searches:
         searchBox.setOnEditorActionListener(this);
@@ -126,6 +140,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 footer.setVisibility(View.VISIBLE);
             }
             searchExpression = prefs.getString(KEY_SEARCH_EXP, "");
+            searchBoxClearButton.setVisibility(searchExpression.isEmpty() ? View.GONE : View.VISIBLE);
             searchBox.setText(searchExpression);
             resultsIndex = prefs.getInt(KEY_SEARCH_INDEX, 1);
         }
@@ -162,9 +177,28 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 progressDialog.show();
                 fetchResults();
                 break;
+            case R.id.activity_main_clear_search_button:
+                searchBox.getText().clear();
+                searchBoxClearButton.setVisibility(View.GONE);
+                break;
             default:
                 break;
         }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        if (searchBoxClearButton.getVisibility() != View.VISIBLE) {
+            searchBoxClearButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
     }
 
     /*
@@ -174,62 +208,59 @@ public class MainActivity extends Activity implements View.OnClickListener,
         String url = String.format(GOOGLE_SEARCH_PHOTO_API, resultsIndex, searchExpression);
         System.out.println("url = " + url);
         JsonObjectRequest jsonObjectReq = new JsonObjectRequest(url, null,
-            new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    // Update the cache:
-                    int numOfResults = PictureDataManager.getInstance().addNewResults(response);
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Update the cache:
+                        int numOfResults = PictureDataManager.getInstance().addNewResults(response);
 
-                    // Refresh the list to display the results:
-                    pictureListAdapter.notifyDataSetChanged();
+                        // Refresh the list to display the results:
+                        pictureListAdapter.notifyDataSetChanged();
 
-                    // Update the index of the last picture retrieved (the start index for the next chunk):
-                    resultsIndex += numOfResults;
+                        // Update the index of the last picture retrieved (the start index for the next chunk):
+                        resultsIndex += numOfResults;
 
-                    // Store to shared prefs whether the more results button will be visible the
-                    // next time the app is started. Also store the search expression so that it'll
-                    // be automatically displayed and the current index of search:
-                    boolean isFooterVisible = (numOfResults == CHUNK_SIZE);
-                    SharedPreferences prefs =
-                            getSharedPreferences(KEY_SHARED_PREFS, Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean(KEY_IS_FOOTER_VISIBLE, isFooterVisible);
-                    editor.putString(KEY_SEARCH_EXP, searchExpression);
-                    editor.putInt(KEY_SEARCH_INDEX, resultsIndex);
-                    editor.commit();
+                        // Store to shared prefs whether the more results button will be visible the
+                        // next time the app is started. Also store the search expression so that it'll
+                        // be automatically displayed and the current index of search:
+                        boolean isFooterVisible = (numOfResults == CHUNK_SIZE);
+                        SharedPreferences prefs =
+                                getSharedPreferences(KEY_SHARED_PREFS, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putBoolean(KEY_IS_FOOTER_VISIBLE, isFooterVisible);
+                        editor.putString(KEY_SEARCH_EXP, searchExpression);
+                        editor.putInt(KEY_SEARCH_INDEX, resultsIndex);
+                        editor.commit();
 
-                    // Render the list footer visible / invisible depending on whether there are more
-                    // results available:
-                    if (isFooterVisible) {    // More results available
-                        if (footer.getVisibility() == View.GONE) {
-                            footer.setVisibility(View.VISIBLE);
+                        // Render the list footer visible / invisible depending on whether there are more
+                        // results available:
+                        if (isFooterVisible) {    // More results available
+                            if (footer.getVisibility() == View.GONE) {
+                                footer.setVisibility(View.VISIBLE);
+                            }
+                        } else {
+                            if (footer.getVisibility() == View.VISIBLE) {
+                                footer.setVisibility(View.GONE);
+                            }
                         }
-                    } else {
-                        if (footer.getVisibility() == View.VISIBLE) {
-                            footer.setVisibility(View.GONE);
-                        }
+
+                        // Remove the progress dialog:
+                        progressDialog.dismiss();
                     }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Error message:
+                        new AlertDialog.Builder(MainActivity.this).
+                                setTitle(R.string.error).
+                                setMessage(R.string.api_call_failure_message).
+                                create().show();
 
-                    // Remove the progress dialog:
-                    progressDialog.dismiss();
+                        // Remove the progress dialog:
+                        progressDialog.dismiss();
+                    }
                 }
-            },
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Throwable cause = error.getCause();
-                    String message = error.getMessage();
-                    String locMessage = error.getLocalizedMessage();
-                    // Error message:
-                    new AlertDialog.Builder(MainActivity.this).
-                            setTitle(R.string.error).
-                            setMessage(R.string.api_call_failure_message).
-                            create().show();
-
-                    // Remove the progress dialog:
-                    progressDialog.dismiss();
-                }
-            }
         );
 
         // Adding JsonObject request to request queue
