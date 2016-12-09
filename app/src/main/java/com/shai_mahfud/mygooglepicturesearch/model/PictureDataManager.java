@@ -57,8 +57,9 @@ public class PictureDataManager {
         // Note for the reader: using synchronized in the method signature is possible but
         // experience taught me it's better to synchronize inside the body of a method rather than
         // in its signature, because if a deadlock occurs, it's much easier to find the cause that
-        // way, for example by printing before and after each synchronized block. This is much more
-        // difficult to do with synchronized methods - you'll have to print before each method call.
+        // way, for example by printing before each synchronized block, right after capturing the
+        // lock and right after releasing the lock. This is much more difficult to do with
+        // synchronized methods - you'll have to print before each method call.
         synchronized (lock) {
             try {
                 JSONArray newPicturesData = newResults.getJSONArray(KEY_ITEMS);
@@ -72,7 +73,6 @@ public class PictureDataManager {
                 e.printStackTrace();
             }
         }
-
         return numOfNewResults;
     }
 

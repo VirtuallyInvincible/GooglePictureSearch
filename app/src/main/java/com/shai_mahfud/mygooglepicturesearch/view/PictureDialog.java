@@ -17,7 +17,7 @@ import com.shai_mahfud.mygooglepicturesearch.R;
  *
  * @author Shai Mahfud
  */
-public class PictureDialog extends Dialog implements View.OnClickListener {
+class PictureDialog extends Dialog implements View.OnClickListener {
     // Constructors:
     /**
      * Initializes this component
@@ -25,7 +25,7 @@ public class PictureDialog extends Dialog implements View.OnClickListener {
      * @param ctx The context in which this dialog is created
      * @param pictureBitmap The bitmap to be displayed in this dialog
      */
-    public PictureDialog(Context ctx, Bitmap pictureBitmap) {
+    PictureDialog(Context ctx, Bitmap pictureBitmap) {
         super(ctx, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
 
         // Set the layout:
@@ -41,6 +41,8 @@ public class PictureDialog extends Dialog implements View.OnClickListener {
         picture.setImageBitmap(pictureBitmap);
     }
 
+
+    // Methods:
     @Override
     public void onClick(View v) {
         int id = v.getId();

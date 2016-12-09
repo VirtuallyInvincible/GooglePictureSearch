@@ -6,35 +6,17 @@
     android:orientation="vertical"
     >
 
-    <RelativeLayout
+    <com.shai_mahfud.mygooglepicturesearch.view.ClearableEditText
+        android:id="@+id/activity_main_search_box"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
-
-        <EditText
-            android:id="@+id/activity_main_search_box"
-            android:layout_width="match_parent"
-            android:layout_height="50dip"
-            android:paddingRight="30dip"
-            android:hint="@string/activity_main_search_box_hint"
-            android:inputType="text"
-            android:imeOptions="actionSearch"
-            />
-        <ImageView
-            android:id="@+id/activity_main_clear_search_button"
-            android:layout_width="25dip"
-            android:layout_height="25dip"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/btn_clear"
-            />
-
-    </RelativeLayout>
+        android:layout_height="50dip"
+        />
     <ListView
         android:id="@+id/activity_main_content_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingRight="@dimen/activity_main_padding_for_scrollbar"
+        android:paddingEnd="@dimen/activity_main_padding_for_scrollbar"
+        android:paddingStart="0dip"
         android:footerDividersEnabled="false"
         android:fadingEdge="none"
         android:fadingEdgeLength="0dip"

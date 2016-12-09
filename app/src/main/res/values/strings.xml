@@ -3,9 +3,9 @@
     <string name="app_name">MyGooglePictureSearch</string>
     <string name="error">Error!</string>
     <string name="api_call_failure_message">There was a problem connecting to the server.</string>
-    <string name="loading_prompt">Loading...</string>
+    <string name="loading_prompt">Loading&#8230;</string>
 
     <!-- Main Activity of the app -->
-    <string name="activity_main_search_box_hint">Search subject...</string>
-    <string name="activity_main_fetch_more_button">More...</string>
+    <string name="activity_main_search_box_hint">Search subject&#8230;</string>
+    <string name="activity_main_fetch_more_button">More&#8230;</string>
 </resources>

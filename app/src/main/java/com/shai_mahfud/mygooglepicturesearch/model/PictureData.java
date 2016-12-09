@@ -15,8 +15,6 @@ import org.json.JSONObject;
 public class PictureData {
     // Constants:
     private static final String KEY_TITLE = "title";
-    private static final String KEY_IMAGE_DATA = "image";
-    private static final String KEY_IMAGE_URL = "contextLink";
 
 
     // Fields:

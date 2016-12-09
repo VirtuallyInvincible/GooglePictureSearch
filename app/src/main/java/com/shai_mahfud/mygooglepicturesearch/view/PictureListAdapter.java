@@ -4,9 +4,13 @@
 
 package com.shai_mahfud.mygooglepicturesearch.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,12 +25,15 @@ import com.shai_mahfud.mygooglepicturesearch.model.PictureData;
 import com.shai_mahfud.mygooglepicturesearch.model.PictureDataManager;
 import com.shai_mahfud.mygooglepicturesearch.networking.VolleyRequestManager;
 
+import java.io.IOException;
+
 /**
  * The adapter for the pictures list
  *
  * @author Shai Mahfud
  */
-public class PictureListAdapter extends BaseAdapter implements View.OnClickListener {
+class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
+        DialogInterface.OnDismissListener {
     // Inner classes:
     private class ViewHolder {
         // Fields:
@@ -52,16 +59,27 @@ public class PictureListAdapter extends BaseAdapter implements View.OnClickListe
     // Fields:
     /* An instance of LayoutInflater for inflating the items of the list from XML */
     private LayoutInflater li;
+    /* The key to access the picture stored in cache associated with a record in the list */
+    private int picKey;
+    /* The key to access the parent View of a picture ImageView */
+    private int parentKey;
+    /*
+     * The URL of the picture currently displayed in full screen mode. Stored to resume the dialog
+     * after screen orientation change happens.
+     */
+    private static String selectedPicUrl;
 
 
     // Constructors:
     /**
      * Instantiates this class
      *
-     * @param li An instance of LayoutInflater for inflating the items of the list from XML
+     * @param ctx The context in which this adapter is created
      */
-    PictureListAdapter(LayoutInflater li) {
-        this.li = li;
+    PictureListAdapter(Context ctx) {
+        this.li = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        picKey = R.id.activity_main_list_item_picture;
+        parentKey = R.id.activity_main_content_list;
     }
 
 
@@ -82,6 +100,7 @@ public class PictureListAdapter extends BaseAdapter implements View.OnClickListe
     }
 
     @Override
+    @SuppressLint("InflateParams")
     public View getView(int position, View convertView, ViewGroup parent) {
         // Set the layout:
         final ViewHolder[] vh = new ViewHolder[1];
@@ -97,8 +116,9 @@ public class PictureListAdapter extends BaseAdapter implements View.OnClickListe
         final PictureData data = getItem(position);
         vh[0].title.setText(data.getTitle());
         vh[0].picture.setImageBitmap(null);
-        VolleyRequestManager.getInstance().getPicture(data.getPictureLink(),
-                new ImageLoader.ImageListener() {
+        String picLink = data.getPictureLink();
+        vh[0].picture.setTag(picKey, picLink);
+        VolleyRequestManager.getInstance().getPicture(picLink, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
@@ -107,6 +127,7 @@ public class PictureListAdapter extends BaseAdapter implements View.OnClickListe
             public void onResponse(ImageLoader.ImageContainer response, boolean loadedFromCache) {
                 Bitmap bitmap = response.getBitmap();
                 if (bitmap != null) {
+                    //vh[0].picture.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 120, 120, false));
                     vh[0].picture.setImageBitmap(bitmap);
                 }
 
@@ -122,7 +143,7 @@ public class PictureListAdapter extends BaseAdapter implements View.OnClickListe
         convertView.setFocusable(true);
 
         // When the user taps the picture, the picture is displayed on the entire screen:
-        vh[0].picture.setTag(parent);
+        vh[0].picture.setTag(parentKey, parent);
         vh[0].picture.setOnClickListener(this);
 
         return convertView;
@@ -138,15 +159,47 @@ public class PictureListAdapter extends BaseAdapter implements View.OnClickListe
                     if (pictureBD != null) {
                         Bitmap pictureBitmap = pictureBD.getBitmap();
                         if (pictureBitmap != null) {
-                            ViewGroup parent = (ViewGroup) v.getTag();
+                            ViewGroup parent = (ViewGroup) v.getTag(parentKey);
                             Context ctx = parent.getContext();
-                            new PictureDialog(ctx, pictureBitmap).show();
+                            selectedPicUrl = (String) v.getTag(picKey);
+                            PictureDialog pd = new PictureDialog(ctx, pictureBitmap);
+                            pd.setOnDismissListener(this);
+                            pd.show();
                         }
                     }
                 }
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialogInterface) {
+        selectedPicUrl = null;
+    }
+
+    /**
+     * Displays a picture in full screen mode. Used to resume to full screen mode when screen
+     * orientation change occurs.
+     *
+     * @param ctx The context in which this method is called
+     */
+    public void showPrevDialog(final Context ctx) {
+        if (selectedPicUrl != null) {
+            VolleyRequestManager.getInstance().getPicture(selectedPicUrl, new ImageLoader.ImageListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                }
+
+                @Override
+                public void onResponse(ImageLoader.ImageContainer response, boolean loadedFromCache) {
+                    Bitmap bitmap = response.getBitmap();
+                    PictureDialog pd = new PictureDialog(ctx, bitmap);
+                    pd.setOnDismissListener(PictureListAdapter.this);
+                    pd.show();
+                }
+            });
         }
     }
 }

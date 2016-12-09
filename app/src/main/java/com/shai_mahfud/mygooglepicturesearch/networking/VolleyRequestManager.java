@@ -19,10 +19,6 @@ import com.android.volley.toolbox.Volley;
  * @author Shai Mahfud
  */
 public class VolleyRequestManager {
-    // Constants:
-    private static final int CACHE_SIZE = 100;
-
-
     // Fields:
     /* The sole instance of this singleton class */
     private static VolleyRequestManager instance;
@@ -31,8 +27,10 @@ public class VolleyRequestManager {
     private RequestQueue requestQueue;
     /* Used for loading pictures from url */
     private ImageLoader pictureLoader;
-    /* The cache for the loader */
+    /* Manages the cache for the loader */
     private ImageLoader.ImageCache imageCache;
+    /* The loader's cache */
+    private LruCache<String, Bitmap> cache;
 
 
     // Constructors:
@@ -43,9 +41,10 @@ public class VolleyRequestManager {
      */
     private VolleyRequestManager(Context ctx) {
         requestQueue = getRequestQueue(ctx);
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int cacheSize = maxMemory / 8;
+        cache = new LruCache<>(cacheSize);
         imageCache = new ImageLoader.ImageCache() {
-            private final LruCache<String, Bitmap> cache = new LruCache<>(CACHE_SIZE);
-
             @Override
             public Bitmap getBitmap(String url) {
                 return cache.get(url);
@@ -53,6 +52,11 @@ public class VolleyRequestManager {
 
             @Override
             public void putBitmap(String url, Bitmap bitmap) {
+                // To avoid crashes due to OutOfMemoryError, I limit the size of the pictures. The
+                // trade off is quality, of course. There are (complex) ways to overcome this
+                // trade off and achieve the best of both worlds as I already did at work, but not
+                // without excessive research.
+                bitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
                 cache.put(url, bitmap);
             }
         };
@@ -81,13 +85,13 @@ public class VolleyRequestManager {
         return instance;
     }
 
-    /**
+    /*
      *
      * @param ctx The context in which this method is called
      *
      * @return The request queue which manages the url connections
      */
-    public RequestQueue getRequestQueue(Context ctx) {
+    private RequestQueue getRequestQueue(Context ctx) {
         if (requestQueue == null) {
             // getApplicationContext() is key, it keeps you from leaking the
             // Activity or BroadcastReceiver if someone passes one in.
@@ -130,5 +134,12 @@ public class VolleyRequestManager {
             imageCache.putBitmap(url, null);
             getPicture(url, listener);
         }
+    }
+
+    /**
+     * Clears the cache
+     */
+    public void clear() {
+        cache.evictAll();
     }
 }
