@@ -19,6 +19,11 @@ import com.android.volley.toolbox.Volley;
  * @author Shai Mahfud
  */
 public class VolleyRequestManager {
+    // Constants:
+    private static final int CACHE_PIC_WIDTH = 500;
+    private static final int CACHE_PIC_HEIGHT = 500;
+
+
     // Fields:
     /* The sole instance of this singleton class */
     private static VolleyRequestManager instance;
@@ -56,7 +61,7 @@ public class VolleyRequestManager {
                 // trade off is quality, of course. There are (complex) ways to overcome this
                 // trade off and achieve the best of both worlds as I already did at work, but not
                 // without excessive research.
-                bitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
+                bitmap = Bitmap.createScaledBitmap(bitmap, CACHE_PIC_WIDTH, CACHE_PIC_HEIGHT, false);
                 cache.put(url, bitmap);
             }
         };

@@ -1,6 +1,9 @@
 <resources>
     <!-- The main Activity of the app -->
     <dimen name="activity_main_padding">5dip</dimen>
-    <dimen name="activity_main_list_item_picture_size">50dip</dimen>
-    <dimen name="activity_main_padding_for_scrollbar">-3dip</dimen>
+
+    <!-- PicturesList -->
+    <dimen name="pictures_list_item_picture_size">50dip</dimen>
+    <dimen name="pictures_list_padding_for_scrollbar">-3dip</dimen>
+    <dimen name="pictures_list_search_box_height">50dip</dimen>
 </resources>

@@ -5,7 +5,7 @@
     <string name="api_call_failure_message">There was a problem connecting to the server.</string>
     <string name="loading_prompt">Loading&#8230;</string>
 
-    <!-- Main Activity of the app -->
+    <!-- PicturesList -->
     <string name="activity_main_search_box_hint">Search subject&#8230;</string>
-    <string name="activity_main_fetch_more_button">More&#8230;</string>
+    <string name="pictures_list_footer_more_button">More&#8230;</string>
 </resources>

@@ -8,9 +8,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +22,6 @@ import com.shai_mahfud.mygooglepicturesearch.R;
 import com.shai_mahfud.mygooglepicturesearch.model.PictureData;
 import com.shai_mahfud.mygooglepicturesearch.model.PictureDataManager;
 import com.shai_mahfud.mygooglepicturesearch.networking.VolleyRequestManager;
-
-import java.io.IOException;
 
 /**
  * The adapter for the pictures list
@@ -50,8 +46,8 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
          * @param convertView The root of the View hierarchy of this ViewHolder
          */
         private ViewHolder(View convertView) {
-            title = (TextView) convertView.findViewById(R.id.activity_main_list_item_title);
-            picture = (ImageView) convertView.findViewById(R.id.activity_main_list_item_picture);
+            title = (TextView) convertView.findViewById(R.id.pictures_list_item_title);
+            picture = (ImageView) convertView.findViewById(R.id.pictures_list_item_picture);
         }
     }
 
@@ -78,8 +74,8 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
      */
     PictureListAdapter(Context ctx) {
         this.li = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        picKey = R.id.activity_main_list_item_picture;
-        parentKey = R.id.activity_main_content_list;
+        picKey = R.id.pictures_list_item_picture;
+        parentKey = R.id.pictures_list_content_list;
     }
 
 
@@ -105,7 +101,7 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
         // Set the layout:
         final ViewHolder[] vh = new ViewHolder[1];
         if (convertView == null) {
-            convertView = li.inflate(R.layout.activity_main_list_item, null);
+            convertView = li.inflate(R.layout.pictures_list_item, null);
             vh[0] = new ViewHolder(convertView);
             convertView.setTag(vh[0]);
         } else {
@@ -127,7 +123,6 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
             public void onResponse(ImageLoader.ImageContainer response, boolean loadedFromCache) {
                 Bitmap bitmap = response.getBitmap();
                 if (bitmap != null) {
-                    //vh[0].picture.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 120, 120, false));
                     vh[0].picture.setImageBitmap(bitmap);
                 }
 
@@ -153,7 +148,7 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
-            case R.id.activity_main_list_item_picture:
+            case R.id.pictures_list_item_picture:
                 if (v instanceof ImageView) {
                     BitmapDrawable pictureBD = (BitmapDrawable) ((ImageView) v).getDrawable();
                     if (pictureBD != null) {
@@ -162,9 +157,7 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
                             ViewGroup parent = (ViewGroup) v.getTag(parentKey);
                             Context ctx = parent.getContext();
                             selectedPicUrl = (String) v.getTag(picKey);
-                            PictureDialog pd = new PictureDialog(ctx, pictureBitmap);
-                            pd.setOnDismissListener(this);
-                            pd.show();
+                            showPictureFullScreen(ctx, pictureBitmap);
                         }
                     }
                 }
@@ -185,7 +178,7 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
      *
      * @param ctx The context in which this method is called
      */
-    public void showPrevDialog(final Context ctx) {
+    void showPrevDialog(final Context ctx) {
         if (selectedPicUrl != null) {
             VolleyRequestManager.getInstance().getPicture(selectedPicUrl, new ImageLoader.ImageListener() {
                 @Override
@@ -194,12 +187,22 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
 
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean loadedFromCache) {
-                    Bitmap bitmap = response.getBitmap();
-                    PictureDialog pd = new PictureDialog(ctx, bitmap);
-                    pd.setOnDismissListener(PictureListAdapter.this);
-                    pd.show();
+                    Bitmap pictureBitmap = response.getBitmap();
+                    PictureListAdapter.this.showPictureFullScreen(ctx, pictureBitmap);
                 }
             });
         }
+    }
+
+    /*
+     * Displays a picture in full screen mode.
+     *
+     * @param ctx The context in which this method is called
+     * @param pictureBitmap The picture to display in full screen
+     */
+    private void showPictureFullScreen(Context ctx, Bitmap pictureBitmap) {
+        PictureDialog pd = new PictureDialog(ctx, pictureBitmap);
+        pd.setOnDismissListener(PictureListAdapter.this);
+        pd.show();
     }
 }

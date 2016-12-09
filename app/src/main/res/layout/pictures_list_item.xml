@@ -7,17 +7,17 @@
     >
 
     <ImageView
-        android:id="@+id/activity_main_list_item_picture"
-        android:layout_width="@dimen/activity_main_list_item_picture_size"
-        android:layout_height="@dimen/activity_main_list_item_picture_size"
+        android:id="@+id/pictures_list_item_picture"
+        android:layout_width="@dimen/pictures_list_item_picture_size"
+        android:layout_height="@dimen/pictures_list_item_picture_size"
         android:layout_alignParentEnd="true"
         android:contentDescription="@string/loading_prompt"
         />
     <TextView
-        android:id="@+id/activity_main_list_item_title"
+        android:id="@+id/pictures_list_item_title"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/activity_main_list_item_picture_size"
-        android:layout_toStartOf="@id/activity_main_list_item_picture"
+        android:layout_height="@dimen/pictures_list_item_picture_size"
+        android:layout_toStartOf="@id/pictures_list_item_picture"
         android:gravity="center_vertical"
         android:maxLines="2"
         android:ellipsize="end"
