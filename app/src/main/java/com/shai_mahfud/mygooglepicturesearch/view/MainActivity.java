@@ -21,6 +21,10 @@ import io.fabric.sdk.android.Fabric;
  * @author Shai Mahfud
  */
 public class MainActivity extends Activity {
+    // Fields:
+    private PicturesSearchMediator mediator;
+
+
     // Methods:
     @Override
     @SuppressLint("InflateParams")
@@ -30,6 +34,21 @@ public class MainActivity extends Activity {
 
         // Set layout:
         setContentView(R.layout.activity_main);
+
+        // Capture Views:
+        SearchEditText searchBox = (SearchEditText) findViewById(R.id.activity_main_search_box);
+        PicturesList picturesList = (PicturesList) findViewById(R.id.activity_main_content_list);
+
+        // Set the mediator for the pictures search components:
+        mediator = new PicturesSearchMediator(this, searchBox, picturesList);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        mediator.terminate();   // This may actually be redundant, because when the Activity is
+                // finished, it's resources are detached and freed by the GC
+        mediator = null;
     }
 
     @Override

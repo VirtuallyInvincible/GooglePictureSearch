@@ -90,7 +90,6 @@ public class ClearableEditText extends RelativeLayout implements View.OnClickLis
      */
     public void setText(String text) {
         textBox.append(text);
-        //clearButton.setVisibility(text.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     /**

@@ -20,8 +20,8 @@ import com.android.volley.toolbox.Volley;
  */
 public class VolleyRequestManager {
     // Constants:
-    private static final int CACHE_PIC_WIDTH = 120;
-    private static final int CACHE_PIC_HEIGHT = 120;
+    private static final int CACHE_PIC_WIDTH = 256;
+    private static final int CACHE_PIC_HEIGHT = 256;
 
 
     // Fields:

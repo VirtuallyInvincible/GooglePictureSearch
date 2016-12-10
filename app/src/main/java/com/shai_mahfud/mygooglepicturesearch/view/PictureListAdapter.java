@@ -75,7 +75,7 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
     PictureListAdapter(Context ctx) {
         this.li = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         picKey = R.id.pictures_list_item_picture;
-        parentKey = R.id.pictures_list_content_list;
+        parentKey = R.id.activity_main_content_list;
     }
 
 
