@@ -1,5 +1,5 @@
 /**
- * All rights reserved to Applicat Technologies Ltd.
+ * All rights reserved to Shai Mahfud.
  */
 
 package com.shai_mahfud.mygooglepicturesearch.view;

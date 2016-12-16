@@ -29,6 +29,10 @@ interface PicturesDisplayerInterface {
      * @param isLastChunk The results represent the last chunk
      */
     void onResults(boolean isLastChunk);
+    /**
+     * Called when an error occurs while trying to fetch more results.
+     */
+    void onError();
     /** Called to free resources and terminate operations */
     void terminate();
 }

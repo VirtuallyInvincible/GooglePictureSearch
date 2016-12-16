@@ -9,10 +9,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,10 +28,10 @@ import com.shai_mahfud.mygooglepicturesearch.networking.VolleyRequestManager;
  *
  * @author Shai Mahfud
  */
-class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
-        DialogInterface.OnDismissListener {
+class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHolder> implements
+        View.OnClickListener, DialogInterface.OnDismissListener {
     // Inner classes:
-    private class ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         // Fields:
         /* Displays the title of the picture associated with this ViewHolder */
         private TextView title;
@@ -40,20 +40,16 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
 
 
         // Constructors:
-        /*
-         * Instantiates this class
-         *
-         * @param convertView The root of the View hierarchy of this ViewHolder
-         */
-        private ViewHolder(View convertView) {
-            title = (TextView) convertView.findViewById(R.id.pictures_list_item_title);
-            picture = (ImageView) convertView.findViewById(R.id.pictures_list_item_picture);
+        ViewHolder(View itemView) {
+            super(itemView);
+            title = (TextView) itemView.findViewById(R.id.pictures_list_item_title);
+            picture = (ImageView) itemView.findViewById(R.id.pictures_list_item_picture);
         }
     }
 
 
     // Fields:
-    /* An instance of LayoutInflater for inflating the items of the list from XML */
+    /* A LayoutInflater instance for use throughout this class */
     private LayoutInflater li;
     /* The key to access the picture stored in cache associated with a record in the list */
     private int picKey;
@@ -70,50 +66,35 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
     /**
      * Instantiates this class
      *
-     * @param ctx The context in which this adapter is created
+     * @param ctx The context in which this adapter is instantiated
      */
     PictureListAdapter(Context ctx) {
-        this.li = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        li = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         picKey = R.id.pictures_list_item_picture;
         parentKey = R.id.activity_main_content_list;
     }
 
 
     // Methods:
-    @Override
-    public int getCount() {
-        return PictureDataManager.getInstance().getCount();
-    }
-
-    @Override
-    public PictureData getItem(int position) {
-        return PictureDataManager.getInstance().getItem(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return 0;
-    }
-
-    @Override
     @SuppressLint("InflateParams")
-    public View getView(int position, View convertView, ViewGroup parent) {
-        // Set the layout:
-        final ViewHolder[] vh = new ViewHolder[1];
-        if (convertView == null) {
-            convertView = li.inflate(R.layout.pictures_list_item, null);
-            vh[0] = new ViewHolder(convertView);
-            convertView.setTag(vh[0]);
-        } else {
-            vh[0] = (ViewHolder) convertView.getTag();
-        }
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View root = li.inflate(R.layout.pictures_list_item, parent, false);
+        ViewHolder vh = new ViewHolder(root);
+        vh.picture.setTag(parentKey, parent);
+        return vh;
+    }
+
+    @Override
+    public void onBindViewHolder(final ViewHolder vh, int position) {
+        // Get the data:
+        final PictureData data = PictureDataManager.getInstance().getItem(position);
 
         // Set the data:
-        final PictureData data = getItem(position);
-        vh[0].title.setText(data.getTitle());
-        vh[0].picture.setImageBitmap(null);
+        vh.title.setText(data.getTitle());
+        vh.picture.setImageBitmap(null);
         String picLink = data.getPictureLink();
-        vh[0].picture.setTag(picKey, picLink);
+        vh.picture.setTag(picKey, picLink);
         VolleyRequestManager.getInstance().getPicture(picLink, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -123,7 +104,7 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
             public void onResponse(ImageLoader.ImageContainer response, boolean loadedFromCache) {
                 Bitmap bitmap = response.getBitmap();
                 if (bitmap != null) {
-                    vh[0].picture.setImageBitmap(bitmap);
+                    vh.picture.setImageBitmap(bitmap);
                 }
 
                 // If the photo was loaded from cache, fetch it again from the API and then refresh
@@ -134,14 +115,18 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
             }
         });
 
-        // Disable click events on the list rows:
-        convertView.setFocusable(true);
-
         // When the user taps the picture, the picture is displayed on the entire screen:
-        vh[0].picture.setTag(parentKey, parent);
-        vh[0].picture.setOnClickListener(this);
+        vh.picture.setOnClickListener(this);
+    }
 
-        return convertView;
+    @Override
+    public long getItemId(int position) {
+        return 0;
+    }
+
+    @Override
+    public int getItemCount() {
+        return PictureDataManager.getInstance().getCount();
     }
 
     @Override
@@ -180,13 +165,15 @@ class PictureListAdapter extends BaseAdapter implements View.OnClickListener,
      */
     void showPrevDialog(final Context ctx) {
         if (selectedPicUrl != null) {
-            VolleyRequestManager.getInstance().getPicture(selectedPicUrl, new ImageLoader.ImageListener() {
+            VolleyRequestManager.getInstance().getPicture(selectedPicUrl,
+                    new ImageLoader.ImageListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                 }
 
                 @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean loadedFromCache) {
+                public void onResponse(ImageLoader.ImageContainer response,
+                                       boolean loadedFromCache) {
                     Bitmap pictureBitmap = response.getBitmap();
                     PictureListAdapter.this.showPictureFullScreen(ctx, pictureBitmap);
                 }

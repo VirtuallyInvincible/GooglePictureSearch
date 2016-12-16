@@ -176,6 +176,9 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
 
                         // Remove the progress dialog:
                         progressDialog.dismiss();
+
+                        // Inform the displayer that an error occurred:
+                        picturesDisplayer.onError();
                     }
                 }
         );
