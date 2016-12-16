@@ -22,6 +22,7 @@ import com.shai_mahfud.mygooglepicturesearch.R;
 import com.shai_mahfud.mygooglepicturesearch.model.PictureData;
 import com.shai_mahfud.mygooglepicturesearch.model.PictureDataManager;
 import com.shai_mahfud.mygooglepicturesearch.networking.VolleyRequestManager;
+//import com.squareup.picasso.Picasso;
 
 /**
  * The adapter for the pictures list
@@ -93,7 +94,7 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
         // Set the data:
         vh.title.setText(data.getTitle());
         vh.picture.setImageBitmap(null);
-        String picLink = data.getPictureLink();
+        final String picLink = data.getPictureLink();
         vh.picture.setTag(picKey, picLink);
         VolleyRequestManager.getInstance().getPicture(picLink, new ImageLoader.ImageListener() {
             @Override
@@ -111,6 +112,12 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
                 // the UI:
                 if (loadedFromCache) {
                     VolleyRequestManager.getInstance().refresh(data.getPictureLink(), this);
+                    /*
+                    Context ctx = ((ViewGroup) vh.picture.getTag(parentKey)).getContext();
+                    Picasso.with(ctx)
+                            .load(picLink)
+                            .into(vh.picture);
+                    */
                 }
             }
         });
