@@ -8,7 +8,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.LruCache;
 
-import com.android.volley.Request;
+//import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
@@ -82,14 +82,6 @@ public class VolleyRequestManager {
         return instance;
     }
 
-    /**
-     *
-     * @return The sole instance of this class
-     */
-    public static synchronized VolleyRequestManager getInstance() {
-        return instance;
-    }
-
     /*
      *
      * @param ctx The context in which this method is called
@@ -113,10 +105,10 @@ public class VolleyRequestManager {
      * @param req The new request to add
      *
      * @param <T> The type of response the API should retrieve (JSONObject, JSONArray, String, ...)
-     */
+
     public <T> void addToRequestQueue(Context ctx, Request<T> req) {
         getRequestQueue(ctx).add(req);
-    }
+    }*/
 
     /**
      * Fetches a picture, either from cache or from url.

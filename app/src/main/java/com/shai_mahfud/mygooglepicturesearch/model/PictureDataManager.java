@@ -4,11 +4,11 @@
 
 package com.shai_mahfud.mygooglepicturesearch.model;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,11 +18,6 @@ import java.util.List;
  * @author Shai Mahfud
  */
 public class PictureDataManager {
-    // Constants:
-    /* The key of the data structure within the API result that contains the pictures data */
-    private static final String KEY_ITEMS = "items";
-
-
     // Fields:
     /* The sole instance of this singleton class */
     private static PictureDataManager instance = new PictureDataManager();
@@ -34,6 +29,17 @@ public class PictureDataManager {
     private List<PictureData> picturesData = new ArrayList<>();
     /* A lock with which to synchronize operations on the pictures data */
     private final Object lock = new Object();
+    /* Used for parsing JSON to model objects */
+    private Gson gson;
+
+
+    // Constructors:
+    private PictureDataManager() {
+        if (gson == null) {
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gson = gsonBuilder.create();
+        }
+    }
 
 
     // Methods:
@@ -52,28 +58,25 @@ public class PictureDataManager {
      *
      * @return The number of pictures retrieved
      */
-    public int addNewResults(JSONObject newResults) {
-        int numOfNewResults = 0;
+    public int addNewResults(PicturesDataResponseJson newResults) {
+        if (newResults == null) {
+            return 0;
+        }
+
+        List<PictureData> newPicturesData = Arrays.asList(newResults.getItems());
         // Note for the reader: using synchronized in the method signature is possible but
         // experience taught me it's better to synchronize inside the body of a method rather than
         // in its signature, because if a deadlock occurs, it's much easier to find the cause that
         // way, for example by printing before each synchronized block, right after capturing the
         // lock and right after releasing the lock. This is much more difficult to do with
         // synchronized methods - you'll have to print before each method call.
-        synchronized (lock) {
-            try {
-                JSONArray newPicturesData = newResults.getJSONArray(KEY_ITEMS);
-                numOfNewResults = newPicturesData.length();
-                for (int i = 0; i < numOfNewResults; i++) {
-                    PictureData newPictureData = new PictureData();
-                    newPictureData.fromJson(newPicturesData.getJSONObject(i));
-                    picturesData.add(newPictureData);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+        if (!(newPicturesData.isEmpty())) {
+            synchronized (lock) {
+                picturesData.addAll(newPicturesData);
             }
         }
-        return numOfNewResults;
+
+        return newPicturesData.size();
     }
 
     /**

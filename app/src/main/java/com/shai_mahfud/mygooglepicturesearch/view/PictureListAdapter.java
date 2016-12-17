@@ -96,7 +96,8 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
         vh.picture.setImageBitmap(null);
         final String picLink = data.getPictureLink();
         vh.picture.setTag(picKey, picLink);
-        VolleyRequestManager.getInstance().getPicture(picLink, new ImageLoader.ImageListener() {
+        Context ctx = ((ViewGroup) vh.picture.getTag(parentKey)).getContext();
+        VolleyRequestManager.getInstance(ctx).getPicture(picLink, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
@@ -111,9 +112,9 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
                 // If the photo was loaded from cache, fetch it again from the API and then refresh
                 // the UI:
                 if (loadedFromCache) {
-                    VolleyRequestManager.getInstance().refresh(data.getPictureLink(), this);
-                    /*
                     Context ctx = ((ViewGroup) vh.picture.getTag(parentKey)).getContext();
+                    VolleyRequestManager.getInstance(ctx).refresh(data.getPictureLink(), this);
+                    /*
                     Picasso.with(ctx)
                             .load(picLink)
                             .into(vh.picture);
@@ -172,7 +173,7 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
      */
     void showPrevDialog(final Context ctx) {
         if (selectedPicUrl != null) {
-            VolleyRequestManager.getInstance().getPicture(selectedPicUrl,
+            VolleyRequestManager.getInstance(ctx).getPicture(selectedPicUrl,
                     new ImageLoader.ImageListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {

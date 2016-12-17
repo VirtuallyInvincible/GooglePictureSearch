@@ -54,7 +54,7 @@ public class PicturesList extends RecyclerView implements PicturesDisplayerInter
                     ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
                     activityManager.getMemoryInfo(memoryInfo);
                     if (memoryInfo.lowMemory) {
-                        VolleyRequestManager.getInstance().clear();
+                        VolleyRequestManager.getInstance(getContext()).clear();
                     }
                 }
             }

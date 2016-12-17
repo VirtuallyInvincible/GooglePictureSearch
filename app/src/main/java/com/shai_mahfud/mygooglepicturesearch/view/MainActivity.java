@@ -55,6 +55,6 @@ public class MainActivity extends Activity {
     public void onLowMemory() {
         super.onLowMemory();
         // System memory is low and the app should free resources
-        VolleyRequestManager.getInstance().clear();
+        VolleyRequestManager.getInstance(this).clear();
     }
 }
