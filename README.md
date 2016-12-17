@@ -22,3 +22,6 @@ appropriate View and gson is used together with Retrofit to parse the JSON from 
 
 Note that Retrofit requires that the names of the fields in the model match exactly the names of the keys in the JSON from which their
 values are obtained.
+
+![alt tag](https://cloud.githubusercontent.com/assets/14920433/21288201/3d854f7a-c485-11e6-8b8d-f3a41d7f7347.png)
+![alt tag](https://cloud.githubusercontent.com/assets/14920433/21288203/43efe1cc-c485-11e6-9035-f78396413a93.png)
