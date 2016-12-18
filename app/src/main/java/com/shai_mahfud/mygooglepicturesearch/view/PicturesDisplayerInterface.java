@@ -10,7 +10,7 @@ package com.shai_mahfud.mygooglepicturesearch.view;
  *
  * @author Shai Mahfud
  */
-interface PicturesDisplayerInterface {
+interface PicturesDisplayerInterface extends PicturesDataAccessProvider {
     /**
      * Sets a new listener to be notified when the next chunk of results should be fetched
      *

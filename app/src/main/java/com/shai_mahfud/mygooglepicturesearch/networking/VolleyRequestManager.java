@@ -25,9 +25,6 @@ public class VolleyRequestManager {
 
 
     // Fields:
-    /* The sole instance of this singleton class */
-    private static VolleyRequestManager instance;
-
     /* Manages requests to retrieve non-image data from urls */
     private RequestQueue requestQueue;
     /* Used for loading pictures from url */
@@ -39,12 +36,12 @@ public class VolleyRequestManager {
 
 
     // Constructors:
-    /*
+    /**
      * Initializes this component
      *
      * @param ctx The context in which this instance is created
      */
-    private VolleyRequestManager(Context ctx) {
+    public VolleyRequestManager(Context ctx) {
         requestQueue = getRequestQueue(ctx);
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int cacheSize = maxMemory / 8;
@@ -66,20 +63,6 @@ public class VolleyRequestManager {
             }
         };
         pictureLoader = new ImageLoader(requestQueue, imageCache);
-    }
-
-    /**
-     *
-     * @param ctx The context in which this method is called
-     *
-     * @return The sole instance of this singleton class
-     */
-    public static synchronized VolleyRequestManager getInstance(Context ctx) {
-        if (instance == null) {
-            instance = new VolleyRequestManager(ctx);
-        }
-
-        return instance;
     }
 
     /*

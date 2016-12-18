@@ -35,4 +35,20 @@ public class PictureData {
     public String getPictureLink() {
         return link;
     }
+
+    /**
+     *
+     * @param title The title to set
+     */
+    void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     *
+     * @param link The link to set
+     */
+    void setLink(String link) {
+        this.link = link;
+    }
 }

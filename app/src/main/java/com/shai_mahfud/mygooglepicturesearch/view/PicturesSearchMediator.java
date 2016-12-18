@@ -28,15 +28,102 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static java.net.Proxy.Type.HTTP;
-
 /**
  * Mediator that allows communication between the UI element which enables the user to insert the
  * search input and the UI element which displays the search results to the screen.
  *
  * @author Shai Mahfud
  */
-class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener {
+class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener,
+        PicturesDataAccessProvider {
+    // Inner classes:
+    /*
+     * Builds instances of this class rather than instantiating it using a constructor. This enables
+     * to pass arguments via several methods rather than pass them all in in a single method /
+     * constructor, thus keeping method/constructor signatures short.
+     */
+    static class Builder {
+        // Fields:
+        /* The new instance of PicturesSearchMediator that this builder is currently constructing */
+        private PicturesSearchMediator newInstance;
+
+
+        // Constructors:
+        Builder(Context ctx) {
+            newInstance = new PicturesSearchMediator();
+
+            // Create an instance of progress dialog to show when the results are being fetched:
+            newInstance.progressDialog = new ProgressDialog(ctx);
+            newInstance.progressDialog.setCancelable(false);
+            newInstance.progressDialog.setMessage(ctx.getString(R.string.loading_prompt));
+
+            // Get the index of search results (last search result obtained from the server, as
+            // stored to shared preferences. Needed to resume the system's state after restarting
+            // it):
+            SharedPreferences prefs = ctx.getSharedPreferences(
+                    KEY_PICTURES_SEARCH_MEDIATOR_SHARED_PREFS, Context.MODE_PRIVATE);
+            newInstance.resultsIndex = prefs.getInt(KEY_SEARCH_INDEX, 1);
+        }
+
+
+        // Methods:
+        /**
+         * Sets the input component used for setting the search subject of the pictures to be
+         * searched.
+         *
+         * @param searchComponent The UI component which enables the user to insert the search
+         *                        subject and initiate a new search.
+         *
+         * @return this Builder object configured with the changes done by the call to this method
+         */
+        Builder setInputComponent(SearchComponentInterface searchComponent) {
+            // Store a reference to the search component:
+            newInstance.searchComponent = searchComponent;
+
+            // Set this mediator as the listener for the events of the component (so that it can
+            // access it):
+            newInstance.searchComponent.addOnSearchListener(newInstance);
+
+            return this;
+        }
+
+        /**
+         * Sets the component which displays the search results when they are retrieved.
+         *
+         * @param picturesDisplayer The UI component which displays the returned results of the
+         *                          search
+         * @param dataManager The object responsible for managing the data of the pictures
+         *
+         * @return this Builder object configured with the changes done by the call to this method
+         */
+        Builder setDisplayerComponent(PicturesDisplayerInterface picturesDisplayer,
+                PictureDataManager dataManager) {
+            // Store a reference to the displayer component:
+            newInstance.picturesDisplayer = picturesDisplayer;
+
+            // Set this mediator as the listener for the events of the component (so that it can
+            // access it):
+            newInstance.picturesDisplayer.setMoreResultsListener(newInstance);
+
+            // Store the data manager for future use:
+            newInstance.setPictureDataManager(dataManager);
+
+            return this;
+        }
+
+        /**
+         * Returns a new instance of PicturesSearchMediator, configured with the properties set by
+         * this builder.
+         *
+         * @return A new instance of PicturesSearchMediator, configured with the properties set by
+         * this builder
+         */
+        PicturesSearchMediator build() {
+            return newInstance;
+        }
+    }
+
+
     // Constants:
     /*
      * The base URL of the photos search API.
@@ -82,33 +169,12 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
 
 
     // Constructors:
-    /**
-     * Initiates this object
+    /*
+     * Initiates this object.
      *
      * @param ctx The context in which this mediator is initiated
      */
-    PicturesSearchMediator(Context ctx, SearchComponentInterface searchComponent,
-            PicturesDisplayerInterface picturesDisplayer) {
-        // Store the components of the pictures search system:
-        this.searchComponent = searchComponent;
-        this.picturesDisplayer = picturesDisplayer;
-
-        // Set this mediator as the listener for the events of the components of the system (so that
-        // they can access it):
-        this.searchComponent.addOnSearchListener(this);
-        this.picturesDisplayer.setMoreResultsListener(this);
-
-        // Create an instance of progress dialog to show when the results are being fetched:
-        progressDialog = new ProgressDialog(ctx);
-        progressDialog.setCancelable(false);
-        progressDialog.setMessage(ctx.getString(R.string.loading_prompt));
-
-        // Get the index of search results (last search result obtained from the server, as stored
-        // to shared preferences. Needed to resume the system's state after restarting it):
-        SharedPreferences prefs = ctx.getSharedPreferences(
-                KEY_PICTURES_SEARCH_MEDIATOR_SHARED_PREFS, Context.MODE_PRIVATE);
-        resultsIndex = prefs.getInt(KEY_SEARCH_INDEX, 1);
-    }
+    private PicturesSearchMediator() {}
 
 
     // Methods:
@@ -130,6 +196,16 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
         // Show the progress dialog and fetch the next chunk of results:
         progressDialog.show();
         fetchResults();
+    }
+
+    @Override
+    public PictureDataManager getPictureDataManager() {
+        return picturesDisplayer.getPictureDataManager();
+    }
+
+    @Override
+    public void setPictureDataManager(PictureDataManager pictureDataManager) {
+        picturesDisplayer.setPictureDataManager(pictureDataManager);
     }
 
     /**
@@ -171,7 +247,7 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
                 }
 
                 // Update the cache:
-                int numOfResults = PictureDataManager.getInstance().addNewResults(response.body());
+                int numOfResults = getPictureDataManager().addNewResults(response.body());
 
                 // Update the index of the last picture retrieved (the start index for the next chunk):
                 resultsIndex += numOfResults;
@@ -190,7 +266,7 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
                 picturesDisplayer.onResults(isLastChunk);
 
                 // Remove the progress dialog:
-                progressDialog.dismiss();
+                dismissProgressDialog();
             }
 
             @Override
@@ -206,7 +282,7 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
                         create().show();
 
                 // Remove the progress dialog:
-                progressDialog.dismiss();
+                dismissProgressDialog();
 
                 // Inform the displayer that an error occurred:
                 picturesDisplayer.onError();
@@ -221,7 +297,7 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
                     @Override
                     public void onResponse(JSONObject response) {
                         // Update the cache:
-                        int numOfResults = PictureDataManager.getInstance().addNewResults(response);
+                        int numOfResults = getPictureDataManager().addNewResults(response);
 
                         // Update the index of the last picture retrieved (the start index for the next chunk):
                         resultsIndex += numOfResults;
@@ -241,7 +317,7 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
                         picturesDisplayer.onResults(isLastChunk);
 
                         // Remove the progress dialog:
-                        progressDialog.dismiss();
+                        dismissProgressDialog();
                     }
                 },
                 new Response.ErrorListener() {
@@ -254,7 +330,7 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
                                 create().show();
 
                         // Remove the progress dialog:
-                        progressDialog.dismiss();
+                        dismissProgressDialog();
 
                         // Inform the displayer that an error occurred:
                         picturesDisplayer.onError();
@@ -265,5 +341,16 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener 
         // Adding JsonObject request to request queue
         VolleyRequestManager.getInstance(ctx).addToRequestQueue(ctx, jsonObjectReq);
         */
+    }
+
+    /*
+     * Called to dismiss the progress dialog
+     */
+    private void dismissProgressDialog() {
+        try {
+            progressDialog.dismiss();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
     }
 }

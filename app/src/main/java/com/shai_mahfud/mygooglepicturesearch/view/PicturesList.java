@@ -13,7 +13,6 @@ import android.view.ViewTreeObserver;
 import android.support.v7.widget.RecyclerView;
 
 import com.shai_mahfud.mygooglepicturesearch.model.PictureDataManager;
-import com.shai_mahfud.mygooglepicturesearch.networking.VolleyRequestManager;
 
 /**
  * A list which displays pictures loaded from Google API
@@ -54,7 +53,7 @@ public class PicturesList extends RecyclerView implements PicturesDisplayerInter
                     ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
                     activityManager.getMemoryInfo(memoryInfo);
                     if (memoryInfo.lowMemory) {
-                        VolleyRequestManager.getInstance(getContext()).clear();
+                        pictureListAdapter.getVolleyRequestManager().clear();
                     }
                 }
             }
@@ -92,6 +91,16 @@ public class PicturesList extends RecyclerView implements PicturesDisplayerInter
 
     // Methods:
     @Override
+    public PictureDataManager getPictureDataManager() {
+        return pictureListAdapter.getPictureDataManager();
+    }
+
+    @Override
+    public void setPictureDataManager(PictureDataManager pictureDataManager) {
+        pictureListAdapter.setPictureDataManager(pictureDataManager);
+    }
+
+    @Override
     public void setMoreResultsListener(OnMoreResultsListener listener) {
         if (listener == null) {
             return;
@@ -103,7 +112,7 @@ public class PicturesList extends RecyclerView implements PicturesDisplayerInter
     @Override
     public void onNewSearch(String searchExpression) {
         // Clear the pictures currently displayed:
-        PictureDataManager.getInstance().clear();
+        getPictureDataManager().clear();
         pictureListAdapter.notifyDataSetChanged();
     }
 

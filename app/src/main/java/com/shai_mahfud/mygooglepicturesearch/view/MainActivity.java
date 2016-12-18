@@ -10,7 +10,7 @@ import android.os.Bundle;
 
 import com.crashlytics.android.Crashlytics;
 import com.shai_mahfud.mygooglepicturesearch.R;
-import com.shai_mahfud.mygooglepicturesearch.networking.VolleyRequestManager;
+import com.shai_mahfud.mygooglepicturesearch.model.PictureDataManager;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -40,7 +40,10 @@ public class MainActivity extends Activity {
         PicturesList picturesList = (PicturesList) findViewById(R.id.activity_main_content_list);
 
         // Set the mediator for the pictures search components:
-        mediator = new PicturesSearchMediator(this, searchBox, picturesList);
+        mediator = new PicturesSearchMediator.Builder(this).
+                setInputComponent(searchBox).
+                setDisplayerComponent(picturesList, new PictureDataManager(this)).
+                build();
     }
 
     @Override
@@ -49,12 +52,5 @@ public class MainActivity extends Activity {
         mediator.terminate();   // This may actually be redundant, because when the Activity is
                 // finished, it's resources are detached and freed by the GC
         mediator = null;
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        // System memory is low and the app should free resources
-        VolleyRequestManager.getInstance(this).clear();
     }
 }

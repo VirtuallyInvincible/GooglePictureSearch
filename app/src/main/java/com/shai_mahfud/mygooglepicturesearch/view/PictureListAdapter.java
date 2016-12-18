@@ -30,7 +30,7 @@ import com.shai_mahfud.mygooglepicturesearch.networking.VolleyRequestManager;
  * @author Shai Mahfud
  */
 class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHolder> implements
-        View.OnClickListener, DialogInterface.OnDismissListener {
+        View.OnClickListener, DialogInterface.OnDismissListener, PicturesDataAccessProvider {
     // Inner classes:
     class ViewHolder extends RecyclerView.ViewHolder {
         // Fields:
@@ -50,6 +50,12 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
 
 
     // Fields:
+    /*
+     * The object responsible for managing the data of the pictures to be displayed
+     */
+    private PictureDataManager picturesDataManager;
+    /* Enables interaction with the Volley library for networking */
+    private VolleyRequestManager volleyRequestManager;
     /* A LayoutInflater instance for use throughout this class */
     private LayoutInflater li;
     /* The key to access the picture stored in cache associated with a record in the list */
@@ -73,10 +79,21 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
         li = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         picKey = R.id.pictures_list_item_picture;
         parentKey = R.id.activity_main_content_list;
+        volleyRequestManager = new VolleyRequestManager(ctx);
     }
 
 
     // Methods:
+    @Override
+    public PictureDataManager getPictureDataManager() {
+        return picturesDataManager;
+    }
+
+    @Override
+    public void setPictureDataManager(PictureDataManager pictureDataManager) {
+        this.picturesDataManager = pictureDataManager;
+    }
+
     @SuppressLint("InflateParams")
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -89,15 +106,14 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
     @Override
     public void onBindViewHolder(final ViewHolder vh, int position) {
         // Get the data:
-        final PictureData data = PictureDataManager.getInstance().getItem(position);
+        final PictureData data = picturesDataManager.getItem(position);
 
         // Set the data:
         vh.title.setText(data.getTitle());
         vh.picture.setImageBitmap(null);
         final String picLink = data.getPictureLink();
         vh.picture.setTag(picKey, picLink);
-        Context ctx = ((ViewGroup) vh.picture.getTag(parentKey)).getContext();
-        VolleyRequestManager.getInstance(ctx).getPicture(picLink, new ImageLoader.ImageListener() {
+        volleyRequestManager.getPicture(picLink, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
@@ -112,9 +128,9 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
                 // If the photo was loaded from cache, fetch it again from the API and then refresh
                 // the UI:
                 if (loadedFromCache) {
-                    Context ctx = ((ViewGroup) vh.picture.getTag(parentKey)).getContext();
-                    VolleyRequestManager.getInstance(ctx).refresh(data.getPictureLink(), this);
+                    volleyRequestManager.refresh(data.getPictureLink(), this);
                     /*
+                    Context ctx = ((ViewGroup) vh.picture.getTag(parentKey)).getContext();
                     Picasso.with(ctx)
                             .load(picLink)
                             .into(vh.picture);
@@ -134,7 +150,7 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
 
     @Override
     public int getItemCount() {
-        return PictureDataManager.getInstance().getCount();
+        return picturesDataManager.getCount();
     }
 
     @Override
@@ -173,8 +189,7 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
      */
     void showPrevDialog(final Context ctx) {
         if (selectedPicUrl != null) {
-            VolleyRequestManager.getInstance(ctx).getPicture(selectedPicUrl,
-                    new ImageLoader.ImageListener() {
+            volleyRequestManager.getPicture(selectedPicUrl, new ImageLoader.ImageListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                 }
@@ -187,6 +202,14 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
                 }
             });
         }
+    }
+
+    /**
+     *
+     * @return The VolleyRequestManager instance used by this adapter
+     */
+    VolleyRequestManager getVolleyRequestManager() {
+        return volleyRequestManager;
     }
 
     /*
