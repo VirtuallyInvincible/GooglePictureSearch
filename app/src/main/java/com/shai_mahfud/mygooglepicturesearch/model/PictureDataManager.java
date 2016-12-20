@@ -168,7 +168,7 @@ public class PictureDataManager extends SQLiteOpenHelper {
      */
     private void clearTable() {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("delete * from " + TABLE_NAME);
+        db.execSQL("DELETE FROM " + TABLE_NAME);
     }
 
     /*

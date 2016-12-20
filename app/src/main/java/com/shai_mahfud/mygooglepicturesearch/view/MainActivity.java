@@ -47,6 +47,18 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
     public void finish() {
         super.finish();
         mediator.terminate();   // This may actually be redundant, because when the Activity is
