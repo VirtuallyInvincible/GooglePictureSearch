@@ -6,6 +6,7 @@ package com.shai_mahfud.mygooglepicturesearch;
 
 import android.app.Application;
 
+import com.activeandroid.ActiveAndroid;
 import com.squareup.leakcanary.LeakCanary;
 
 /**
@@ -27,5 +28,8 @@ public class PictureSearchApplication extends Application {//extends MultiDexApp
             }
             LeakCanary.install(this);
         }
+
+        // Initialize the ActiveAndroid library's database:
+        ActiveAndroid.initialize(this);
     }
 }

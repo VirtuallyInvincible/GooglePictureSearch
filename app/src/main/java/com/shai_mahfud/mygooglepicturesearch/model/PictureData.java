@@ -4,6 +4,10 @@
 
 package com.shai_mahfud.mygooglepicturesearch.model;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+
 /**
  * Stores the data retrieved from the pictures API which is relevant for our application.
  *
@@ -17,6 +21,15 @@ public class PictureData {
     /* The URL where the picture is stored */
     @SuppressWarnings("FieldCanBeLocal")
     private String link = "";
+
+
+    // Constructors:
+    /**
+     * Initializes this component. Required for ActiveAndroid.
+     */
+    public PictureData() {
+        super();
+    }
 
 
     // Methods:
