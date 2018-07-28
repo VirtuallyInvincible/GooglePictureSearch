@@ -45,6 +45,7 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener,
      */
     static class Builder {
         // Fields:
+        /* The new instance of PicturesSearchMediator that this builder is currently constructing */
         private PicturesSearchMediator newInstance;
 
 
@@ -52,6 +53,7 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener,
         Builder(Context ctx) {
             newInstance = new PicturesSearchMediator();
 
+            // Create an instance of progress dialog to show when the results are being fetched:
             newInstance.progressDialog = new ProgressDialog(ctx);
             newInstance.progressDialog.setCancelable(false);
             newInstance.progressDialog.setMessage(ctx.getString(R.string.loading_prompt));

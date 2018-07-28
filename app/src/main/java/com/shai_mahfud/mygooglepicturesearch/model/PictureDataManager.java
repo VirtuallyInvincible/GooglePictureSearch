@@ -4,13 +4,8 @@
 
 package com.shai_mahfud.mygooglepicturesearch.model;
 
-//import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-//import android.database.Cursor;
-//import android.database.sqlite.SQLiteDatabase;
-//import android.database.sqlite.SQLiteOpenHelper;
-//import android.provider.BaseColumns;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Select;
@@ -113,6 +108,13 @@ public class PictureDataManager {//extends SQLiteOpenHelper {
         if (!(newPicturesData.isEmpty())) {
             synchronized (lock) {
                 picturesData.addAll(newPicturesData);
+
+                /*
+                // Store data to SQLite database:
+                for (PictureData newData : newPicturesData) {
+                    insertToTable(newData);
+                }
+                */
 
                 // Store the data to the database using ActiveAndroid library:
                 ActiveAndroid.beginTransaction();   // Using transactions to speed up actions on

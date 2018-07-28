@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -30,7 +31,7 @@ import com.shai_mahfud.mygooglepicturesearch.networking.VolleyRequestManager;
  * @author Shai Mahfud
  */
 class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHolder> implements
-        View.OnClickListener, PicturesDataAccessProvider {
+        View.OnClickListener, View.OnTouchListener, PicturesDataAccessProvider {
     // Inner classes:
     class ViewHolder extends RecyclerView.ViewHolder {
         // Fields:
@@ -72,6 +73,8 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
      * after screen orientation change happens.
      */
     private static String selectedPicUrl;
+    /* Whether a picture has already been animated upon touch */
+    private boolean alreadyAnimated = false;
 
 
     // Constructors:
@@ -146,6 +149,10 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
 
         // When the user taps the picture, the picture is displayed on the entire screen:
         vh.picture.setOnClickListener(this);
+
+        // As long as the user touches the picture, the picture is enlarged a bit to convey the
+        // event:
+        vh.picture.setOnTouchListener(this);
     }
 
     @Override
@@ -179,6 +186,24 @@ class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.ViewHol
             default:
                 break;
         }
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent motionEvent) {
+        int action = motionEvent.getAction();
+        if (!alreadyAnimated && (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE)) {
+            alreadyAnimated = true;
+            v.animate().scaleXBy(1.1f).setDuration(1000).start();
+            v.animate().scaleYBy(1.1f).setDuration(1000).start();
+        } else if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_OUTSIDE ||
+                action == MotionEvent.ACTION_UP) {
+            alreadyAnimated = false;
+            v.animate().cancel();
+            v.setScaleX(1f);
+            v.setScaleY(1f);
+        }
+
+        return false;
     }
 
     void terminate() {

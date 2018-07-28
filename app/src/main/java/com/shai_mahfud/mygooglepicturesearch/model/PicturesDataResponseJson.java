@@ -11,10 +11,15 @@ package com.shai_mahfud.mygooglepicturesearch.model;
  */
 public class PicturesDataResponseJson {
     // Fields:
+    /* The pictures data in the response */
     private PictureData[] items = null;
 
 
     // Methods:
+    /**
+     *
+     * @return The current chunk's results in array format
+     */
     PictureData[] getItems() {
         return items;
     }
