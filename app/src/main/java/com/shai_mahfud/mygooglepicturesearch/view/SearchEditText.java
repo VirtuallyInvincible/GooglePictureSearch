@@ -2,14 +2,17 @@
  * All rights reserved to Shai Mahfud.
  */
 
-package com.shai_mahfud.mygooglepicturesearch.view;
+package com.shai_mahfud.mygooglepicturesearch.view.custom_edit_text;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -31,6 +34,8 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
      * loaded
      */
     private static final String KEY_SEARCH_EXP = "search_expression";
+    /* The time that should elapse to perform a search after a text change event */
+    private static final int DELAY = 1000;
 
 
     // Fields:
@@ -44,6 +49,13 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
      * expression will be taken when more results are fetched, and not the text currently in the box.
      */
     private String searchExpression = "";
+    /* Handles searches after the user stopped typing */
+    private Handler onFinishTextingHandler = new Handler();
+    private Runnable onFinishTextingRunnable = new Runnable() {
+        public void run() {
+            textBox.onEditorAction(EditorInfo.IME_ACTION_SEARCH);
+        }
+    };
 
 
     // Constructors:
@@ -81,6 +93,8 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(KEY_SEARCH_EXP, searchExpression);
             editor.commit();
+
+            closeKeyboard();
         }
 
         return false;
@@ -96,6 +110,17 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
         synchronized (listenersLock) {
             listeners.clear();
         }
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        onFinishTextingHandler.removeCallbacks(onFinishTextingRunnable);
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+        // As soon as the user stops typing, run a search:
+        onFinishTextingHandler.postDelayed(onFinishTextingRunnable, DELAY);
     }
 
     /**
@@ -128,5 +153,19 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
                 KEY_SEARCH_EDIT_TEXT_SHARED_PREFS, Context.MODE_PRIVATE);
         searchExpression = prefs.getString(KEY_SEARCH_EXP, "");
         super.setText(searchExpression);
+    }
+
+    private void closeKeyboard() {
+        Context ctx = getContext();
+        if (ctx == null) {
+            return;
+        }
+        InputMethodManager imm = (InputMethodManager) ctx.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        if (imm == null) {
+            return;
+        }
+
+        imm.hideSoftInputFromWindow(getWindowToken(), 0);
     }
 }

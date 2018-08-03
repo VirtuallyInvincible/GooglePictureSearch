@@ -2,7 +2,7 @@
  * All rights reserved to Shai Mahfud.
  */
 
-package com.shai_mahfud.mygooglepicturesearch.view;
+package com.shai_mahfud.mygooglepicturesearch.view.custom_edit_text;
 
 import android.content.Context;
 import android.os.Handler;
@@ -27,22 +27,10 @@ import com.shai_mahfud.mygooglepicturesearch.R;
  */
 public class ClearableEditText extends RelativeLayout implements View.OnClickListener,
         View.OnTouchListener, TextWatcher {
-    // Constants:
-    private static final int DELAY = 1000;
-
-
     // Fields:
     private EditText textBox;
     /* Enables to clear the text in the text box */
     private ImageView clearButton;
-    /* Handles searches after the user stopped typing */
-    private Handler onFinishTextingHandler = new Handler();
-    private long lastTextFinish = Long.MAX_VALUE;
-    private Runnable onFinishTextingRunnable = new Runnable() {
-        public void run() {
-            textBox.onEditorAction(EditorInfo.IME_ACTION_SEARCH);
-        }
-    };
     /* When the user touches the clear button, it fades out to reflect the event */
     private boolean alreadyAnimated = false;
 
@@ -69,7 +57,6 @@ public class ClearableEditText extends RelativeLayout implements View.OnClickLis
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        onFinishTextingHandler.removeCallbacks(onFinishTextingRunnable);
         if (clearButton.getVisibility() != View.VISIBLE) {
             clearButton.setVisibility(View.VISIBLE);
         }
@@ -77,8 +64,6 @@ public class ClearableEditText extends RelativeLayout implements View.OnClickLis
 
     @Override
     public void afterTextChanged(Editable editable) {
-        // As soon as the user stops typing, run a search:
-        onFinishTextingHandler.postDelayed(onFinishTextingRunnable, DELAY);
     }
 
     @Override
