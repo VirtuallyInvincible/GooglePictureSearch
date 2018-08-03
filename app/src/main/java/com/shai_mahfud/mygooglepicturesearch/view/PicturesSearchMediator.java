@@ -230,11 +230,12 @@ class PicturesSearchMediator implements OnSearchListener, OnMoreResultsListener,
                 picturesDisplayer.onResults(isLastChunk);
 
                 dismissProgressDialog();
+
+                //refocusSearchBox();
             }
 
             @Override
             public void onFailure(Call<PicturesDataResponseJson> call, Throwable t) {
-                HttpUrl url = call.request().url();
                 if (t != null) {
                     t.printStackTrace();
                 }

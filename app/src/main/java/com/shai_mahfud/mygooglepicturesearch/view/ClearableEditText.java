@@ -2,7 +2,7 @@
  * All rights reserved to Shai Mahfud.
  */
 
-package com.shai_mahfud.mygooglepicturesearch.view.custom_edit_text;
+package com.shai_mahfud.mygooglepicturesearch.view;
 
 import android.content.Context;
 import android.os.Handler;
@@ -64,6 +64,9 @@ public class ClearableEditText extends RelativeLayout implements View.OnClickLis
 
     @Override
     public void afterTextChanged(Editable editable) {
+        if ((editable == null || editable.length() == 0) && clearButton.getVisibility() == View.VISIBLE) {
+            clearButton.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -121,6 +124,22 @@ public class ClearableEditText extends RelativeLayout implements View.OnClickLis
     public void setImeAction(int imeOptions, TextView.OnEditorActionListener listener) {
         textBox.setImeOptions(imeOptions);
         textBox.setOnEditorActionListener(listener);
+    }
+
+    /**
+     * Executes an action, such as EditorInfo.IME_ACTION_SEARCH.
+     *
+     * @param action The IME action to execute
+     */
+    protected void dispatchOnEditorAction(int action) {
+        textBox.onEditorAction(action);
+    }
+
+    /**
+     * Set focus to the text box.
+     */
+    protected void focus() {
+        textBox.requestFocus();
     }
 
     /*

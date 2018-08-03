@@ -2,7 +2,7 @@
  * All rights reserved to Shai Mahfud.
  */
 
-package com.shai_mahfud.mygooglepicturesearch.view.custom_edit_text;
+package com.shai_mahfud.mygooglepicturesearch.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -53,7 +53,14 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
     private Handler onFinishTextingHandler = new Handler();
     private Runnable onFinishTextingRunnable = new Runnable() {
         public void run() {
-            textBox.onEditorAction(EditorInfo.IME_ACTION_SEARCH);
+            SearchEditText.super.dispatchOnEditorAction(EditorInfo.IME_ACTION_SEARCH);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    openKeyboard();
+                    SearchEditText.super.focus();
+                }
+            }, DELAY);
         }
     };
 
@@ -115,12 +122,15 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         onFinishTextingHandler.removeCallbacks(onFinishTextingRunnable);
+        super.onTextChanged(charSequence, i, i1, i2);
     }
 
     @Override
     public void afterTextChanged(Editable editable) {
         // As soon as the user stops typing, run a search:
         onFinishTextingHandler.postDelayed(onFinishTextingRunnable, DELAY);
+
+        super.afterTextChanged(editable);
     }
 
     /**
@@ -156,16 +166,28 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
     }
 
     private void closeKeyboard() {
-        Context ctx = getContext();
-        if (ctx == null) {
-            return;
-        }
-        InputMethodManager imm = (InputMethodManager) ctx.getSystemService(
-                Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = getInputMethodManager();
         if (imm == null) {
             return;
         }
-
         imm.hideSoftInputFromWindow(getWindowToken(), 0);
+    }
+
+    private void openKeyboard() {
+        InputMethodManager imm = getInputMethodManager();
+        if (imm == null) {
+            return;
+        }
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
+
+    private InputMethodManager getInputMethodManager() {
+        Context ctx = getContext();
+        if (ctx == null) {
+            return null;
+        }
+        InputMethodManager imm = (InputMethodManager) ctx.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        return imm;
     }
 }
