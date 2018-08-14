@@ -59,4 +59,5 @@ dependencies {
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+    compile 'org.greenrobot:eventbus:3.1.1'
 }

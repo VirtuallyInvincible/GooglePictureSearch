@@ -5,14 +5,12 @@
 package com.shai_mahfud.mygooglepicturesearch.view;
 
 import android.content.Context;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -112,7 +110,7 @@ public class ClearableEditText extends RelativeLayout implements View.OnClickLis
      * @param text The text to set
      */
     public void setText(String text) {
-        textBox.append(text);
+        textBox.setText(text);
     }
 
     /**
@@ -148,11 +146,9 @@ public class ClearableEditText extends RelativeLayout implements View.OnClickLis
      * @param ctx The context in which this method is called
      */
     private void init(Context ctx) {
-        // Set the layout:
         LayoutInflater li = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         li.inflate(R.layout.clearable_edit_text, this);
 
-        // Capture Views:
         textBox = (EditText) findViewById(R.id.clearable_edit_text_text_box);
         clearButton = (ImageView) findViewById(R.id.clearable_edit_text_clear_button);
 

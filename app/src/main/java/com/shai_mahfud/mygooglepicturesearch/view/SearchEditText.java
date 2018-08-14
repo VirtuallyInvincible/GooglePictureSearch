@@ -11,10 +11,16 @@ import android.os.Handler;
 import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.shai_mahfud.mygooglepicturesearch.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,6 +139,19 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
         super.afterTextChanged(editable);
     }
 
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id) {
+            case R.id.clearable_edit_text_speak_button:
+                EventBus.getDefault().post(new SpeechInputEvent());
+                break;
+            default:
+                super.onClick(v);
+                break;
+        }
+    }
+
     /**
      * Adds a listener to be notified when a search is executed via this SearchEditText
      *
@@ -154,6 +173,9 @@ public class SearchEditText extends ClearableEditText implements EditText.OnEdit
      * @param ctx The context in which this component is created
      */
     private void init(Context ctx) {
+        ImageButton speakButton = (ImageButton) findViewById(R.id.clearable_edit_text_speak_button);
+        speakButton.setOnClickListener(this);
+
         // Set the action button of the search box to search button (displays a magnifier when the
         // keyboard is opened):
         super.setImeAction(EditorInfo.IME_ACTION_SEARCH, this);

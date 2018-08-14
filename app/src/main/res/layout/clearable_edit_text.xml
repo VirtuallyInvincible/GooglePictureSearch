@@ -4,29 +4,49 @@
     android:layout_height="wrap_content"
     >
 
+    <LinearLayout
+        android:id="@+id/clearable_edit_text_buttons_container"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
+        >
+
+        <ImageButton
+            android:id="@+id/clearable_edit_text_speak_button"
+            android:layout_width="50dip"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:src="@drawable/btn_mic"
+            android:adjustViewBounds="true"
+            android:padding="15dp"
+            android:scaleType="fitCenter"
+            />
+        <ImageButton
+            android:id="@+id/clearable_edit_text_clear_button"
+            android:layout_width="50dip"
+            android:layout_height="match_parent"
+            android:src="@drawable/btn_clear"
+            android:background="@android:color/transparent"
+            android:visibility="gone"
+            android:contentDescription="@string/loading_prompt"
+            android:adjustViewBounds="true"
+            android:padding="15dp"
+            android:scaleType="fitCenter"
+            />
+
+    </LinearLayout>
     <EditText
         android:id="@+id/clearable_edit_text_text_box"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_toLeftOf="@id/clearable_edit_text_buttons_container"
         android:paddingEnd="30dip"
         android:paddingStart="0dip"
         android:hint="@string/activity_main_search_box_hint"
         android:inputType="text"
         android:gravity="center_vertical"
-        />
-    <ImageButton
-        android:id="@+id/clearable_edit_text_clear_button"
-        android:layout_width="50dip"
-        android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/btn_clear"
-        android:background="@android:color/transparent"
-        android:visibility="gone"
-        android:contentDescription="@string/loading_prompt"
-        android:adjustViewBounds="true"
-        android:padding="15dp"
-        android:scaleType="fitCenter"
         />
 
 </RelativeLayout>
