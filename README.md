@@ -1,4 +1,6 @@
 # GooglePictureSearch
+Note: My projects may contain bugs. I do not hold any liability regarding my projects. Use at your own risk.
+
 Android project for searching photos via Google search API. Tap a photo to watch it in full screen. Both portrait and landscape modes are
 supported, even for full screen mode of pictures (not trivial - Android destroy's the Activity and recreates it, and the full screen mode
 is actually a dialog).
